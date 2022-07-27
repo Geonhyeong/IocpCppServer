@@ -1,11 +1,5 @@
 #pragma once
 
-#include "Types.h"
-#include "CoreMacro.h"
-#include "CoreTLS.h"
-#include "CoreGlobal.h"
-#include "Lock.h"
-
 #include <vector>
 #include <list>
 #include <queue>
@@ -17,4 +11,11 @@
 
 #include <Windows.h>
 #include <iostream>
+
+#include "Types.h"
+#include "CoreMacro.h"
+#include "CoreTLS.h"
+#include "CoreGlobal.h"
+#include "Lock.h"
+
 using namespace std;
