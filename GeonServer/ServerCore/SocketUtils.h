@@ -8,7 +8,12 @@
 class SocketUtils
 {
 public:
-	/* 함수 포인터 */
+	/* 
+		함수 포인터
+		WSASend와 WSARecv는 송수신 완료 통지를 IOCP를 통해 받을 수 있지만,
+		accept와 connect는 받을 수 없다. 이를 위해 MS에서 확장API를 제공함.
+		비동기 입출력 방식으로 작동하는 함수이다.
+	*/
 	static LPFN_CONNECTEX		ConnectEx;
 	static LPFN_DISCONNECTEX	DisconnectEx;
 	static LPFN_ACCEPTEX		AcceptEx;
