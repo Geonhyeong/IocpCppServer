@@ -21,11 +21,11 @@ class IocpEvent : public OVERLAPPED
 public:
 	IocpEvent(EventType type);
 
-	void		Init();
-	EventType	GetType() { return _type; }
+	void			Init();
 
-protected:
-	EventType _type;
+public:
+	EventType		eventType;
+	IocpObjectRef	owner;
 };
 
 class ConnectEvent : public IocpEvent
@@ -39,12 +39,9 @@ class AcceptEvent : public IocpEvent
 public:
 	AcceptEvent() : IocpEvent(EventType::Accept) { }
 
-	void		SetSession(Session* session) { _session = session; }
-	Session*	GetSession() { return _session; }
-
-private:
+public:
 	/* AcceptEx에 client socket을 미리 생성해서 넘겨줘야하기 때문에 인자가 미리 필요하다. */
-	Session* _session = nullptr;
+	SessionRef session = nullptr;
 };
 
 class RecvEvent : public IocpEvent

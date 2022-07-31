@@ -3,7 +3,7 @@
 /* 
 	세션의 상위 클래스
 */
-class IocpObject
+class IocpObject : public enable_shared_from_this<IocpObject>
 {
 public:
 	virtual HANDLE	GetHandle() abstract;
