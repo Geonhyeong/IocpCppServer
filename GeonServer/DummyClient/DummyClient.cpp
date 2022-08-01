@@ -75,6 +75,7 @@ int main()
 			else
 			{
 				// 진짜 문제 있는 상황
+				cout << "Error : " << ::WSAGetLastError() << endl;
 				break;
 			}
 		}
