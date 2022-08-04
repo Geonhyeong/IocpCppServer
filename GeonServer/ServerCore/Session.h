@@ -22,6 +22,7 @@ public:
 public:
 	/* 외부에서 사용 */
 	void				Send(BYTE* buffer, int32 len);
+	bool				Connect();
 	void				Disconnect(const WCHAR* cause);
 
 	shared_ptr<Service>	GetService() { return _service.lock(); }
@@ -42,11 +43,13 @@ private:
 
 private:
 	/* 전송 관련 */
-	void				RegisterConnect();
+	bool				RegisterConnect();
+	bool				RegisterDisconnect();
 	void				RegisterRecv();
 	void				RegisterSend(SendEvent* sendEvent);
 
 	void				ProcessConnect();
+	void				ProcessDisconnect();
 	void				ProcessRecv(int32 numOfBytes);
 	void				ProcessSend(SendEvent* sendEvent, int32 numOfBytes);
 
@@ -82,6 +85,8 @@ private:
 		recv할 때 reference counting 용도로도 사용된다.
 		매번마다 만들고 삭제하기 아깝기 때문에 재사용할 수 있도록 멤버변수로 만듬.
 	*/
+	ConnectEvent		_connectEvent;
+	DisconnectEvent		_disconnectEvent;
 	RecvEvent			_recvEvent;		
 };
 

@@ -49,7 +49,17 @@ ClientService::ClientService(NetAddress targetAddresss, IocpCoreRef core, Sessio
 
 bool ClientService::Start()
 {
-	// TODO
+	if (CanStart() == false)
+		return false;
+
+	const int32 sessionCount = GetMaxSessionCount();
+	for (int32 i = 0; i < sessionCount; i++)
+	{
+		SessionRef session = CreateSession();
+		if (session->Connect() == false)
+			return false;
+	}
+
 	return true;
 }
 
