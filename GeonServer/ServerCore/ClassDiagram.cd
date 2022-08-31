@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="IocpObject">
+    <Position X="7.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IocpCore.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IocpCore">
+    <Position X="0.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIgAAAAAAAAAAEAAAAAAAAAAAAIBAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>IocpCore.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="IocpEvent" Collapsed="true">
+    <Position X="5.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAgAAAAAQAAAAAAEAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>IocpEvent.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ConnectEvent" Collapsed="true">
+    <Position X="9.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IocpEvent.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="DisconnectEvent">
+    <Position X="0.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IocpEvent.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AcceptEvent" Collapsed="true">
+    <Position X="3" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAEAAABAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IocpEvent.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RecvEvent" Collapsed="true">
+    <Position X="5.25" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>IocpEvent.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SendEvent" Collapsed="true">
+    <Position X="7.5" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAABAA=</HashCode>
+      <FileName>IocpEvent.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Listener">
+    <Position X="8.75" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AKgAAAEAAAAAAEAQAAAAQECAAAAAAACAAAAAQAAAAAA=</HashCode>
+      <FileName>Listener.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="NetAddress" Collapsed="true">
+    <Position X="0.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAQAAAAAAEAAAAAAAAAAAAAAgAAAACAAAAAAA=</HashCode>
+      <FileName>NetAddress.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Service">
+    <Position X="2.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAECCAgEBUAAQQAIAAIAAAQQAAwAAAAIAACUAA=</HashCode>
+      <FileName>Service.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ClientService">
+    <Position X="4.5" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAQAAAAEAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Service.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ServerService">
+    <Position X="4.5" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAAAAAEACACAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Service.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Session">
+    <Position X="6.25" Y="5.25" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <NestedTypes>
+      <Enum Name="Session::__unnamed_enum_02d7_1" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Session.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AIwIBAIIBAAAERNQAEAAgIQBhAAAAIIDACCAQAEAAFA=</HashCode>
+      <FileName>Session.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="SocketUtils" Collapsed="true">
+    <Position X="0.5" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAgAAAkAIAgEUAABAAAAAAAAAAgAAAAAAGAADAAAA=</HashCode>
+      <FileName>SocketUtils.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="EventType">
+    <Position X="2.5" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIQAAAACAAAAAAAAAEAAAAAAAIAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IocpEvent.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="ServiceType">
+    <Position X="4.25" Y="10.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAQ=</HashCode>
+      <FileName>Service.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="맑은 고딕" Size="9" />
+</ClassDiagram>

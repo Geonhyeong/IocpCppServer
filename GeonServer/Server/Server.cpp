@@ -11,10 +11,15 @@ public:
 		cout << "~GameSession" << endl;
 	}
 
+	virtual void OnConnected() override
+	{
+		cout << "GameSession OnConnected!" << endl;
+	}
+
 	virtual int32 OnRecv(BYTE* buffer, int32 len) override
 	{
 		// Echo
-		cout << "OnRecvLen = " << len << endl;
+		cout << "OnRecv Len = " << len << endl;
 		Send(buffer, len);
 		return len;
 	}
@@ -31,7 +36,7 @@ int main()
 		NetAddress(L"127.0.0.1", 7777),
 		make_shared<IocpCore>(),
 		[]() -> SessionRef { return make_shared<GameSession>(); },	// TODO : SessionManager 등
-		100);
+		10);
 
 	ASSERT_CRASH(service->Start());
 
