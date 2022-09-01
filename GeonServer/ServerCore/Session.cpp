@@ -13,22 +13,16 @@ Session::~Session()
 	SocketUtils::Close(_socket);
 }
 
-void Session::Send(BYTE* buffer, int32 len)
+void Session::Send(SendBufferRef sendBuffer)
 {
-	// 생각할 문제
-	// 1) 버퍼 관리?
-	// 2) sendEvent 관리? 단일? 여러개? WSASend 중첩?
-	// Send는 Recv와 다르게 수없이 호출되기 때문에 정책이 다르다.
-	// Broadcast할 때 세션마다 sendBuffer의 복사비용이 들면 너무 무겁기 때문에 복사비용도 고려해야함.
-
-	// TEMP
-	SendEvent* sendEvent = new SendEvent();
-	sendEvent->owner = shared_from_this();	// ADD_REF
-	sendEvent->buffer.resize(len);
-	::memcpy(sendEvent->buffer.data(), buffer, len);
-
+	// 하나의 쓰레드에서만 수행하도록 하기 위해서
+	// 현재 RegisterSend가 걸리지 않은 상태라면, 걸어준다.
 	WRITE_LOCK;
-	RegisterSend(sendEvent);
+
+	_sendQueue.push(sendBuffer);
+
+	if (_sendRegistered.exchange(true) == false)
+		RegisterSend();
 }
 
 bool Session::Connect()
@@ -69,7 +63,7 @@ void Session::Dispatch(IocpEvent* iocpEvent, int32 numOfBytes)
 		ProcessRecv(numOfBytes);
 		break;
 	case EventType::Send:
-		ProcessSend(static_cast<SendEvent*>(iocpEvent), numOfBytes);
+		ProcessSend(numOfBytes);
 		break;
 	default:
 		break;
@@ -100,7 +94,7 @@ bool Session::RegisterConnect()
 		int32 errorCode = ::WSAGetLastError();
 		if (errorCode != WSA_IO_PENDING)
 		{
-			_connectEvent.owner == nullptr;		// RELEASE_REF
+			_connectEvent.owner = nullptr;		// RELEASE_REF
 			return false;
 		}
 	}
@@ -151,24 +145,59 @@ void Session::RegisterRecv()
 	}
 }
 
-void Session::RegisterSend(SendEvent* sendEvent)
+void Session::RegisterSend()
 {
+	/*
+		WSASend는 thread_safe한가? WSASend할 때는 순서가 보장이 되지만
+		GQCS할 때는 순서가 보장되지 않는다. 그래서 문제가 생길 수 있다.
+		또한 커널의 sendbuffer가 가득차서 pending이 발생할텐데 막 WSASend를 거는게 맞는것일까?
+		크게 묶어서 한번에 Send를 보내는게 더 좋다.
+	*/
+
 	if (IsConnected() == false)
 		return;
 
-	WSABUF wsaBuf;
-	wsaBuf.buf = (char*)sendEvent->buffer.data();
-	wsaBuf.len = (ULONG)sendEvent->buffer.size();
+	_sendEvent.Init();
+	_sendEvent.owner = shared_from_this(); // ADD_REF
+
+	// 보낼 데이터(sendQueue에 쌓인 데이터)를 sendEvent에 등록
+	{
+		WRITE_LOCK;
+
+		int32 writeSize = 0;
+		while (_sendQueue.empty() == false)
+		{
+			SendBufferRef sendBuffer = _sendQueue.front();
+
+			writeSize += sendBuffer->WriteSize();
+			// TODO : 예외 처리(너무 큰 사이즈는 또 안됨)
+
+			_sendQueue.pop();
+			_sendEvent.sendBuffers.push_back(sendBuffer);
+		}
+	}
+
+	// Scatter-Gather (흩어져 있는 데이터들을 모아서 한 방에 보낸다)
+	vector<WSABUF> wsaBufs;
+	wsaBufs.reserve(_sendEvent.sendBuffers.size());
+	for (SendBufferRef sendBuffer : _sendEvent.sendBuffers)
+	{
+		WSABUF wsaBuf;
+		wsaBuf.buf = reinterpret_cast<char*>(sendBuffer->Buffer());
+		wsaBuf.len = static_cast<ULONG>(sendBuffer->WriteSize());
+		wsaBufs.push_back(wsaBuf);
+	}
 
 	DWORD numOfBytes = 0;
-	if (SOCKET_ERROR == ::WSASend(_socket, &wsaBuf, 1, OUT &numOfBytes, 0, sendEvent, nullptr))
+	if (SOCKET_ERROR == ::WSASend(_socket, wsaBufs.data(), static_cast<DWORD>(wsaBufs.size()), OUT &numOfBytes, 0, &_sendEvent, nullptr))
 	{
 		int32 errorCode = ::WSAGetLastError();
 		if (errorCode != WSA_IO_PENDING)
 		{
 			HandleError(errorCode);
-			sendEvent->owner = nullptr;	// RELEASE_REF
-			delete(sendEvent);
+			_sendEvent.owner = nullptr;	// RELEASE_REF
+			_sendEvent.sendBuffers.clear(); // RELEASE_REF
+			_sendRegistered.store(false);
 		}
 	}
 
@@ -229,17 +258,10 @@ void Session::ProcessRecv(int32 numOfBytes)
 	RegisterRecv();
 }
 
-void Session::ProcessSend(SendEvent* sendEvent, int32 numOfBytes)
+void Session::ProcessSend(int32 numOfBytes)
 {
-	/*
-		WSASend는 thread_safe한가? WSASend할 때는 순서가 보장이 되지만
-		GQCS할 때는 순서가 보장되지 않는다. 그래서 문제가 생길 수 있다.
-		또한 커널의 sendbuffer가 가득차서 pending이 발생할텐데 막 WSASend를 거는게 맞는것일까?
-		크게 묶어서 한번에 Send를 보내는게 더 좋다.
-	*/
-
-	sendEvent->owner = nullptr;	// RELEASE_REF
-	delete(sendEvent);
+	_sendEvent.owner = nullptr;	// RELEASE_REF
+	_sendEvent.sendBuffers.clear(); // RELEASE_REF
 
 	if (numOfBytes == 0)
 	{
@@ -249,6 +271,12 @@ void Session::ProcessSend(SendEvent* sendEvent, int32 numOfBytes)
 
 	// 컨텐츠 코드에서 오버라이딩
 	OnSend(numOfBytes);
+
+	WRITE_LOCK;
+	if (_sendQueue.empty())
+		_sendRegistered.store(false);
+	else
+		RegisterSend();
 }
 
 void Session::HandleError(int32 errorCode)

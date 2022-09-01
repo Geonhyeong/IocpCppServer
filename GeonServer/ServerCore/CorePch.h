@@ -11,6 +11,7 @@
 
 #include <Windows.h>
 #include <iostream>
+using namespace std;
 
 #include <winsock2.h>
 #include <mswsock.h>
@@ -22,5 +23,4 @@
 #include "CoreTLS.h"
 #include "CoreGlobal.h"
 #include "Lock.h"
-
-using namespace std;
+#include "SendBuffer.h"
