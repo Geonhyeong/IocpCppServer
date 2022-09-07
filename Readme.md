@@ -36,11 +36,13 @@
   - 멤버변수로 RecvEvent를 들고 있는데 세션마다 하나씩 갖고 있고 매번마다 만들고 삭제하기 아깝기도 하며 session의 reference counting 용도로도 사용되기 때문에 멤버변수로 선언함. 이 ref counting을 잘 고려하여 코드를 설계해야한다. 
   - *현재 Recv 부분만 추가함.*
 - **2022.08.03** Session 클래스 추가 #2
+  
   - Session의 Send 관련 함수 부분들을 추가함. 
   - 하지만 Send는 Recv와 다르게 1번에 하나씩 실행되는 것이 아니라 여러 쓰레드에서 동시다발적으로 실행될 수 있기 때문에 멀티쓰레드에서 안전한지 고려해야 하고 그에 따른 버퍼 관리도 더 생각해야 한다. 
   - 또한 Broadcast시에 생기는 복사 비용에 대해서도 고려해야 하기 때문에 정책을 다르게 할 수 밖에 없다. 그래서 지금 임시로 구조를 잡아놨지만 수정해야 할 것이 많다. 
-  - TODO : recv한 데이터 중에서 아직 처리가 안된 부분을 건드리면 안되기 때문에 recvBuffer를 그대로 복사하는 부분은 수정이 필요함.
+  - > TODO : recv한 데이터 중에서 아직 처리가 안된 부분을 건드리면 안되기 때문에 recvBuffer를 그대로 복사하는 부분은 수정이 필요함.
 - **2022.08.04** Session 클래스 추가 #3
+  
   - Disconnect 이벤트를 추가함. Connect와 Disconnect도 비동기 함수를 사용하여 Register -> Process 과정을 거치도록 함.  그 과정에서 socket을 재사용할 수 있도록 옵션을 정의함.
   - 또한, ClientService의 Start 함수도 정의하여 client가 서버에 연결을 시작할 때 Start 함수만 호출하면 session이 생성되고 각 session이 connect를 비동기적으로 호출하도록 함.
 - **2022.08.31** RecvBuffer 클래스 추가
@@ -64,9 +66,20 @@
   - Packet의 Size와 Protocol ID를 담은 Packet Header를 붙여서 보내는 것이 일반적이다. PacketHeader를 Parsing하여 온전한 Packet을 수신했는지 알 수 있다. 
   - 만약 수신을 덜 했을 경우에는 다음 패킷이 도착할 때 까지 기다려줌으로써 패킷을 완전체로 조립한 다음에 콘텐츠단으로 넘겨주도록 한다. 이 로직을 다시 한번 살펴보도록 하자. 
   - 그리고 이 부분에서 서버는 해킹의 여지도 충분히 고려해야 한다. Packet의 Size와 ID를 확인하여 보안 이슈를 잘 신경 써야 한다. 
-  - #DummyClient를 1000개로 하여 실행 한 후에 Client를 강제로 종료시키면 Server의 BroadCast에서 Crash가 나는데 그 이유는 Send를 할 때 Disconnect가 되어 수행할 때 OnDisconnect를 호출하여 for문을 도는 중에 erase를 실행하도록 로직이 짜여있기 때문이었다. 그래서 OnDisconnected가 ProcessDisconnect가 호출 될 때 실행하도록 수정함.
+  - > DummyClient를 1000개로 하여 실행 한 후에 Client를 강제로 종료시키면 Server의 BroadCast에서 Crash가 나는데 그 이유는 Send를 할 때 Disconnect가 되어 수행할 때 OnDisconnect를 호출하여 for문을 도는 중에 erase를 실행하도록 로직이 짜여있기 때문이었다. 그래서 OnDisconnected가 ProcessDisconnect가 호출 될 때 실행하도록 수정함.
 - **2022.09.06** BufferReader와 BufferWriter 클래스 추가
   - ServerCore 부분은 한 번 만들고 더 이상 건들지 않고, 주로 컨텐츠단에서 기능을 구현하게 될텐데 이 때 가장 중요한 부분이 패킷을 어떻게 만들어주고 전송할 것인가이다.
   - 주로 Google의 Protobuf를 많이 사용한다. 하지만 어떠한 옵션과 각각의 장단점을 이해하는 것이 좋기 때문에 직접 구현을 하면서 공부함.
   - 현재 버퍼를 만들 때 패킷헤더의 사이즈를 직접 계산하고 할당하는 것은 매우 번거롭고 실수의 여지가 있다. 그래서 버퍼를 읽고 쓰는데에 도움을 주는 클래스를 추가함.
   - 가변적인 길이의 데이터 같은 여러가지 프로토콜의 설계에 대해 고민해볼 필요가 있다.
+  
+- **2022.09.07** PacketHandler 클래스 추가
+
+  - 게임에는 엄청 많은 종류의 프로토콜을 설계한다. 그리고 프로토콜별로 패킷을 파싱하는 방법이 다 다르다. 그래서 패킷을 파싱해 주는 새로운 ClientPacketHandler와 ServerPacketHandler 클래스를 추가함.
+
+  - 가변 데이터에 대한 패킷을 파싱하는 방법을 알아봄. 그 중에서 문자열은 인코딩 이슈가 있음.
+
+  - > 저번 시간에 만든 BufferWriter에서 왼값 오른값 참조하는 template 코드를 작성했는데 여기에서 문제가 발생함. template을 하면 보편참조가 되어서 왼값도 오른값 참조 오버로딩 함수로 들어오게 됨. 그래서 reference(&)의 포인터를 캐스트 하려고 하여 오류가 발생. 그래서 오류를 수정하였는데 왼값, 오른값과 template의 관계와 보편참조에 대해서 알아놔야 할 필요가 있다.
+
+  - *중요한 마음가짐 : 클라이언트는 절대 신용할 수 없다. 패킷을 곧이곧대로 믿지 말자.*
+

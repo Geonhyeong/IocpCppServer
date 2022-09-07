@@ -25,3 +25,4 @@ using namespace std;
 #include "CoreGlobal.h"
 #include "Lock.h"
 #include "SendBuffer.h"
+#include "Session.h"
