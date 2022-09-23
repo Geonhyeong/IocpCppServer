@@ -24,6 +24,7 @@ public:
 	virtual void	CloseService();
 	void			SetSessionFactory(SessionFactory func) { _sessionFactory = func; }
 
+	void			Broadcast(SendBufferRef sendBuffer);	// TEMP
 	SessionRef		CreateSession();
 	void			AddSession(SessionRef session);
 	void			ReleaseSession(SessionRef session);
