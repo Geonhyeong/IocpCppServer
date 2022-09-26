@@ -8,19 +8,42 @@
 #include "Protocol.pb.h"
 #include "Room.h"
 
+void HealByValue(int64 target, int32 value)
+{
+	cout << target << "한테 힐" << value << "만큼 줌" << endl;
+}
+
+class Knight
+{
+public:
+	void HealMe(int32 value)
+	{
+		cout << "HealMe! " << value << endl;
+	}
+};
+
 int main()
 {
+	auto tup = std::tuple<int32, int32>(1, 2);
+	auto val0 = std::get<0>(tup);	// 1
+	auto val1 = std::get<1>(tup);	// 2
+
+	auto s = gen_seq<3>();
+	// gen_seq<3>
+	// : gen_seq<2, 2>
+	// : gen_seq<1, 1, 2>
+	// : gen_seq<0, 0, 1, 2>
+	// : seq<0, 1, 2>
+
 	// TEST JOB
 	{
-		// [일감 의뢰 내용] : 1번 유저한테 10만큼 힐을 줘라!
-		// 행동 : Heal
-		// 인자 : 1번 유저, 10이라는 힐량
-		HealJob healJob;
-		healJob._target = 1;
-		healJob._healValue = 10;
-
-		// 나중에
-		healJob.Execute( );
+		FuncJob<void, int64, int32> job(HealByValue, 100, 10);
+		job.Execute();
+	}
+	{
+		Knight k1;
+		MemberJob job2(&k1, &Knight::HealMe, 10);
+		job2.Execute();
 	}
 
 	// JOB
