@@ -8,47 +8,8 @@
 #include "Protocol.pb.h"
 #include "Room.h"
 
-void HealByValue(int64 target, int32 value)
-{
-	cout << target << "한테 힐" << value << "만큼 줌" << endl;
-}
-
-class Knight
-{
-public:
-	void HealMe(int32 value)
-	{
-		cout << "HealMe! " << value << endl;
-	}
-};
-
 int main()
 {
-	auto tup = std::tuple<int32, int32>(1, 2);
-	auto val0 = std::get<0>(tup);	// 1
-	auto val1 = std::get<1>(tup);	// 2
-
-	auto s = gen_seq<3>();
-	// gen_seq<3>
-	// : gen_seq<2, 2>
-	// : gen_seq<1, 1, 2>
-	// : gen_seq<0, 0, 1, 2>
-	// : seq<0, 1, 2>
-
-	// TEST JOB
-	{
-		FuncJob<void, int64, int32> job(HealByValue, 100, 10);
-		job.Execute();
-	}
-	{
-		Knight k1;
-		MemberJob job2(&k1, &Knight::HealMe, 10);
-		job2.Execute();
-	}
-
-	// JOB
-	
-
 	ClientPacketHandler::Init();
 
 	ServerServiceRef service = make_shared<ServerService>(
@@ -72,7 +33,7 @@ int main()
 
 	while (true)
 	{
-		GRoom.FlushJob();
+		GRoom->FlushJob();
 		this_thread::sleep_for(1ms);
 	}
 
