@@ -31,11 +31,5 @@ int main()
 			});
 	}
 
-	while (true)
-	{
-		GRoom->FlushJob();
-		this_thread::sleep_for(1ms);
-	}
-
 	GThreadManager->Join();
 }

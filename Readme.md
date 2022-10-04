@@ -171,6 +171,13 @@
 
   - ServerCore단에 Job, JobQueue, JobSerializer 클래스를 생성함.
   - 이전 버젼의 함수자의 업그레이드 버젼으로 람다식과 functional 헤더를 사용하여 구현함. 하지만 단점으로 C++가 람다식이 안 어울리는 점이 있는데, 람다식에 캡쳐([&])한 인자들은 후에 function이 실행될 때까지 삭제되지 않아야 한다. 즉, 객체의 생명 주기를 잘 고려해야 한다.
-  - 또한 클래스 내에서 멤버 함수에 람다식을 사용하면 복사([=])했을 때 객체의 포인터(=this)가 복사된다. 즉 객체가 삭제되면 쓰레기값이 되어버린다. 우회하는 방법으로 클래스를 enable_shared_from_this를 상속 받고 [self = shared_from_this()]와 같은 방법으로 클래스 객체의 ref Count를 증가gkdu 객체가 삭제되지 않도록 해야 한다.
+  - 또한 클래스 내에서 멤버 함수에 람다식을 사용하면 복사([=])했을 때 객체의 포인터(=this)가 복사된다. 즉 객체가 삭제되면 쓰레기값이 되어버린다. 우회하는 방법으로 클래스를 enable_shared_from_this를 상속 받고 [self = shared_from_this()]와 같은 방법으로 클래스 객체의 ref Count를 증가하여 객체가 삭제되지 않도록 해야 한다.
   - JobSerializer는 내부적으로 JobQueue를 들고 있어 Job이 필요한 컨텐츠 클래스에서 매번 JobQueue와 PushJob을 새로 구현할 필요 없이 상속 받아 FlushJob()만 구현하면 된다.
+  
+- **2022.10.04** JobQueue #4
+
+  - JobSerializer 대신 JobQueue로 본래 JobQueue는 LockQueue로 변경함.
+  - Room이 하나가 아니라 여러 개일 경우를 고려하여 Push 따로 Flush 따로 하지 않고 Push한 녀석이 Flush도 담당하도록 함. Session의 Send처럼 처음 들어온 쓰레드가 일을 도맡아 하도록 로직을 구현함. 이 때 Lock 순서를 잘 생각하고 사용해야 함.
+  - 문제점으로는 일감이 너무 몰리게 되면 Job을 실행하는 쓰레드가 영영 빠져나오지 못하는 경우가 생길 수 있다. 따라서 일감이 적당히 배분 되도록 유도할 필요가 있음.
+
 
