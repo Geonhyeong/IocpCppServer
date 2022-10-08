@@ -71,15 +71,16 @@ bool Handle_C_ENTER_GAME(PacketSessionRef& session, Protocol::C_ENTER_GAME& pkt)
 	uint64 index = pkt.playerindex();
 	// TODO : Validation
 
-	PlayerRef player = gameSession->_players[index]; // READ_ONLY?
+	gameSession->_currentPlayer = gameSession->_players[index]; // READ_ONLY?
+	gameSession->_room = GRoom;
 
-	GRoom->DoAsync(&Room::Enter, player);
+	GRoom->DoAsync(&Room::Enter, gameSession->_currentPlayer);
 
 	// TODO : 아직 예약만 한 상태라서 이 부분은 애매해진다...
 	Protocol::S_ENTER_GAME enterGamePkt;
 	enterGamePkt.set_success(true);
 	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(enterGamePkt);
-	player->ownerSession->Send(sendBuffer);
+	gameSession->_currentPlayer->ownerSession->Send(sendBuffer);
 
 	return true;
 }
