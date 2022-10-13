@@ -198,4 +198,8 @@
   - 예약 시간(쿨타임)과 해당 일감의 owner인 JobQueue의 weak_ptr을 글로벌한 JobTimer에게 예약을 걸어 놓고 중앙 통제를 통해 빠르게 체크하여(우선순위 큐를 이용함) 실행해야 할 Job을 GlobalQueue에 뿌려준다.
   - 이 때, '왜 바로 Execute 하지 않고 GlobalQueue에 넣는가'에 대해서는 최대한 모두가 공평하게 분배 받아서 실행하도록 하기 위한 정책이다. 이는 원하는 방식으로 수정해도 좋다.
 
-
+- **2022.10.13** DB Connection
+  - ODBC(Open DataBase Connectivity)를 이용하여 SQL Server DB를 구축함.
+  - DB랑 연결하는 하나의 단위인 DBConnection 클래스와 이를 Pooling해서 재사용하는 DBConnectionPool 클래스를 추가함.
+  - DBConnection은 단순하게 꺼내 쓴 뒤 바로 반납하는 식으로 재사용할 것이기 때문에 굳이 refCounting 해줄 필요가 없어서 스마트 포인터를 쓰지 않고 그냥 포인터로 사용함.
+  - 지금은 매번 bind 해줄 때마다 SQL_TYPE과 C_TYPE을 구분하여서 지정해주는 것도 번거롭고 인자들을 만들어서 건네주는 것도 번거롭다.

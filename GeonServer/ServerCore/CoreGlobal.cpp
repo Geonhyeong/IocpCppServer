@@ -6,12 +6,15 @@
 #include "SendBuffer.h"
 #include "GlobalQueue.h"
 #include "JobTimer.h"
+#include "DBConnectionPool.h"
 
 ThreadManager*		GThreadManager = nullptr;
 SendBufferManager*	GSendBufferManager = nullptr;
 GlobalQueue*		GGlobalQueue = nullptr;
 JobTimer*			GJobTimer = nullptr;
+
 DeadLockProfiler*	GDeadLockProfiler = nullptr;
+DBConnectionPool*	GDBConnectionPool = nullptr;
 
 class CoreGlobal
 {
@@ -23,6 +26,7 @@ public:
 		GGlobalQueue = new GlobalQueue();
 		GJobTimer = new JobTimer();
 		GDeadLockProfiler = new DeadLockProfiler();
+		GDBConnectionPool = new DBConnectionPool();
 		SocketUtils::Init();
 	}
 	~CoreGlobal()
@@ -32,6 +36,7 @@ public:
 		delete GGlobalQueue;
 		delete GJobTimer;
 		delete GDeadLockProfiler;
+		delete GDBConnectionPool;
 		SocketUtils::Clear();
 	}
 } GCoreGlobal;	// 선언함과 동시에 전역객체를 생성함으로써 컨텐츠단에서 건드리지 않아도 정상적으로 작동한다.
