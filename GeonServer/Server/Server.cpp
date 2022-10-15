@@ -34,7 +34,7 @@ void DoWorkerJob(ServerServiceRef& service)
 int main()
 {
 	//
-	ASSERT_CRASH(GDBConnectionPool->Connect(1, L"Driver={MySQL ODBC 8.0 ANSI Driver};Server=(localdb)\\ProjectsV13;Database=ServerDB;Trusted_Connection=Yes;"));
+	ASSERT_CRASH(GDBConnectionPool->Connect(1, L"Driver={SQL Server Native Client 11.0};Server=(localdb)\\ProjectsV13;Database=ServerDB;Trusted_Connection=Yes;"));
 
 	// Create Table
 	{

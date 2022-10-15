@@ -23,8 +23,12 @@ bool DBConnection::Connect(SQLHENV henv, const WCHAR* connectionString)
 		SQL_DRIVER_NOPROMPT
 	);
 
+	
 	if (::SQLAllocHandle(SQL_HANDLE_STMT, _connection, &_statement) != SQL_SUCCESS)
+	{
+		HandleError(ret);
 		return false;
+	}
 
 	return (ret == SQL_SUCCESS || ret == SQL_SUCCESS_WITH_INFO);
 }
@@ -137,10 +141,10 @@ void DBConnection::HandleError(SQLRETURN ret)
 			_statement,
 			index,
 			sqlState,
-			OUT & nativeErr,
+			OUT &nativeErr,
 			errMsg,
 			_countof(errMsg),
-			OUT & msgLen
+			OUT &msgLen
 		);
 
 		if (errorRet == SQL_NO_DATA)
